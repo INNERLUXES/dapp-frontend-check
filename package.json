@@ -1,0 +1,51 @@
+{
+  "name": "dapp-frontend-check",
+  "version": "1.0.0",
+  "description": "dApp front-end check: reads the JavaScript, TypeScript, JSON and env files of a decentralized app's front end or off-chain service as text, runs nothing, calls no node and fetches nothing, and lists risky Web3 integration patterns with file, line and column as an input to a review of how the app talks to wallets and chains: private keys and seed phrases in source or env files (never printed), RPC addresses with an API key, unlimited approvals and permits, eth_sign, messages built from fields and signed as text, typed data domains with no chainId or verifyingContract, wallet code that never looks at the chain, addresses that fail the EIP-55 checksum, addresses repeated outside one map, one contract name with two addresses for one chain, window.web3, ethereum.enable() and eth_accounts with no request for accounts, HTML built from token metadata, and waits for one confirmation against a setting of more. Text, JSON, CSV and GitHub annotation output, exit codes for a pipeline, no dependencies.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "bin": {
+    "dapp-frontend-check": "bin/dapp-frontend-check.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "docs",
+    "examples",
+    "research",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.js\"",
+    "test:coverage": "node --test --experimental-test-coverage \"test/*.test.js\"",
+    "check": "node tools/check.mjs",
+    "example": "node tools/example.mjs"
+  },
+  "keywords": [
+    "web3",
+    "dapp",
+    "ethereum",
+    "blockchain",
+    "security",
+    "eip-55",
+    "eip-712",
+    "wallet",
+    "static-analysis",
+    "code-review",
+    "cli"
+  ],
+  "author": "INNERLUXES <info@innerluxes.dev>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/INNERLUXES/dapp-frontend-check.git"
+  },
+  "homepage": "https://innerluxes.dev/blockchain/development/services"
+}
