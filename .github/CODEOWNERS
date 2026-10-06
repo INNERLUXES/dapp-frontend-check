@@ -1,0 +1,29 @@
+# Every change is reviewed by a maintainer.
+* @innerluxesdev
+
+# The listing of the folder, the reading of files, the lexer, the readers of JSON and env files, the hash, the word
+# list, the checks, the tables of names, the patterns, the points of the public pages, the configuration and the output
+# decide every result, what is read from the disk and that no secret is shown; changes need extra care.
+/src/walk.js @innerluxesdev
+/src/files.js @innerluxesdev
+/src/lexer.js @innerluxesdev
+/src/tree.js @innerluxesdev
+/src/envfile.js @innerluxesdev
+/src/keccak.js @innerluxesdev
+/src/bip39.js @innerluxesdev
+/src/wordlist.js @innerluxesdev
+/src/strings.js @innerluxesdev
+/src/code.js @innerluxesdev
+/src/settings.js @innerluxesdev
+/src/project.js @innerluxesdev
+/src/glob.js @innerluxesdev
+/src/json.js @innerluxesdev
+/src/data.js @innerluxesdev
+/src/defaults.js @innerluxesdev
+/research/ @innerluxesdev
+/src/csv.js @innerluxesdev
+/src/config.js @innerluxesdev
+/src/rules.js @innerluxesdev
+/src/check.js @innerluxesdev
+/src/report.js @innerluxesdev
+/tools/check.mjs @innerluxesdev
