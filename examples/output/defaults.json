@@ -1,0 +1,45 @@
+{
+  "name": "built-in defaults",
+  "include": [
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.mjs",
+    "**/*.cjs",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.mts",
+    "**/*.cts",
+    "**/*.json",
+    "**/.env",
+    "**/.env.*"
+  ],
+  "exclude": [
+    "**/dist/**",
+    "**/build/**",
+    "**/.next/**",
+    "**/out/**",
+    "**/coverage/**",
+    "**/artifacts/**",
+    "**/cache/**",
+    "**/package-lock.json",
+    "**/npm-shrinkwrap.json"
+  ],
+  "rules": {
+    "privateKey": "error",
+    "seedPhrase": "error",
+    "rpcUrlKey": "warning",
+    "unlimitedApproval": "warning",
+    "ethSign": "error",
+    "unstructuredSigning": "info",
+    "typedDataDomain": "warning",
+    "chainCheck": "info",
+    "addressChecksum": "warning",
+    "addressRepeated": "info",
+    "addressConflict": "warning",
+    "legacyWalletApi": "warning",
+    "htmlFromChain": "warning",
+    "lowConfirmations": "info"
+  },
+  "minSeverity": "info",
+  "failOn": "error"
+}

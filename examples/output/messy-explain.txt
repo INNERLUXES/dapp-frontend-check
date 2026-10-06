@@ -1,0 +1,210 @@
+dapp-frontend-check: examples/messy
+input: 12 files read (7 code, 4 JSON, 1 env); 1 other file passed over; 1 folder named .git or node_modules passed over; 2 paths excluded; 0 links not followed
+config: examples/config.json (Quillmere Market front end review): include **/*.js, **/*.jsx, **/*.mjs, **/*.cjs, **/*.ts, **/*.tsx, **/*.mts, **/*.cts, **/*.json, **/.env and **/.env.*; exclude **/dist/**, **/build/**, **/.next/**, **/out/**, **/coverage/**, **/artifacts/**, **/cache/**, **/package-lock.json, **/npm-shrinkwrap.json and **/mocks/**; minimum severity info; fail on error
+rules: private-key (error); seed-phrase (error); rpc-url-key (warning); unlimited-approval (warning); eth-sign (error); unstructured-signing (warning); typed-data-domain (warning); chain-not-checked (info); address-checksum (warning); address-repeated (info); address-conflict (warning); legacy-wallet-api (warning); html-from-chain (warning); low-confirmations (info); unreadable-file (error); scan-limit (error)
+findings: 17 (4 error, 9 warning, 4 info)
+
+Files (12)
+
+  file                                              kind  addresses  error  warning  info
+  examples/messy/.env.example                       env   1          2      0        0
+  examples/messy/package.json                       json  0          0      0        0
+  examples/messy/scripts/seed-market.mjs            code  0          1      0        0
+  examples/messy/src/components/NftCard.tsx         code  0          0      1        0
+  examples/messy/src/config/contracts.json          json  3          0      0        0
+  examples/messy/src/config/networks.json           json  0          0      0        0
+  examples/messy/src/config/staging/contracts.json  json  2          0      1        0
+  examples/messy/src/lib/addresses.ts               code  2          0      1        1
+  examples/messy/src/lib/rpc.ts                     code  0          0      1        0
+  examples/messy/src/trade/approve.ts               code  1          0      1        2
+  examples/messy/src/wallet/connect.ts              code  0          0      2        1
+  examples/messy/src/wallet/sign.ts                 code  0          1      2        0
+
+Summary
+
+  files: 12 read, 7 JavaScript or TypeScript, 4 JSON and 1 env
+  addresses: 9 written, 5 distinct
+  wallet calls: 3 signature requests, 0 transaction sends, 2 approvals
+
+Rules (16)
+
+  rule                  level    findings
+  private-key           error    2
+  seed-phrase           error    1
+  rpc-url-key           warning  1
+  unlimited-approval    warning  1
+  eth-sign              error    1
+  unstructured-signing  warning  1
+  typed-data-domain     warning  1
+  chain-not-checked     info     1
+  address-checksum      warning  1
+  address-repeated      info     2
+  address-conflict      warning  1
+  legacy-wallet-api     warning  2
+  html-from-chain       warning  1
+  low-confirmations     info     1
+  unreadable-file       error    0
+  scan-limit            error    0
+
+Findings (17)
+
+  ERROR    seed-phrase           examples/messy/.env.example:5
+           DEPLOYER_MNEMONIC holds 12 words of the BIP-39 English list in a row in an env file of the repository, though they do not pass the BIP-39 checksum; the words are not shown
+           fix: take the phrase out of the repository and out of its history, treat every account of it as known to everyone and move what they hold; a test that needs a phrase builds it at run time
+           rule: 12 or more words of the BIP-39 English list in a row
+           basis: a mnemonic has 12, 15, 18, 21 or 24 words of a list of 2,048, each standing for 11 bits, and its last bits are a checksum taken from the SHA-256 hash of the entropy (BIP-39: Mnemonic code for generating deterministic keys (Bitcoin Improvement Proposals), https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)
+           basis: the English word list holds 2,048 words in a fixed order, one per line, and the index of a word is its place in the list (The BIP-39 English word list, english.txt (Bitcoin Improvement Proposals), https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt)
+           basis: a recovery phrase or a private key is never to be shared for any reason, and never kept in digital form such as a screenshot (Ethereum security and scam prevention (ethereum.org), https://ethereum.org/security/)
+           basis: the seed phrase of a wallet is written down and kept offline, never on a computer, because whoever holds it holds the account (Ethereum wallets (ethereum.org), https://ethereum.org/wallets/)
+           basis: secrets hard coded in source and configuration files are a common leak; .env files are not to be committed, and client-side code is not to hold secrets at all (Secrets Management Cheat Sheet (OWASP), https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)
+           the tool's own choice: 12 or more words in a row, all of the BIP-39 English list, in a string, a fixed part of a template, a JSON string or an env value; the report says whether the BIP-39 checksum of the phrase holds, and a run whose checksum fails is still reported, because it may be a real phrase with one word changed; the words are never shown
+
+  ERROR    private-key           examples/messy/.env.example:7
+           RELAYER_PRIVATE_KEY holds a value of 64 hexadecimal digits that looks like a private key in an env file of the repository; the value is not shown
+           fix: take the key out of the repository and out of its history, treat it as known to everyone and move what it holds to a new key; sign on a server or in the wallet of the user, never with a key shipped in a front end
+           rule: a value of 64 hexadecimal digits that its name says is a private key
+           basis: a recovery phrase or a private key is never to be shared for any reason, and never kept in digital form such as a screenshot (Ethereum security and scam prevention (ethereum.org), https://ethereum.org/security/)
+           basis: secrets hard coded in source and configuration files are a common leak; .env files are not to be committed, and client-side code is not to hold secrets at all (Secrets Management Cheat Sheet (OWASP), https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)
+           basis: a secret that leaked is revoked and rotated, and removed from the code, the logs and the history (Secrets Management Cheat Sheet (OWASP), https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)
+           basis: an env file holds KEY=value lines, # starts a comment unless the value is quoted, and the file is not to be committed (dotenv (the README of the package), https://github.com/motdotla/dotenv)
+           the tool's own choice: a value of 64 hexadecimal digits, with or without 0x, in a string, a fixed part of a template, a JSON string or an env value, where the name it is given to, its key, the call it is passed to or the object it sits in has a word of KEY_WORDS, or the word key and no word of NOT_KEY_WORDS (a hash, a topic, a slot or a role is a value of the same shape); a value whose digits are all the same is a placeholder; the value is never shown
+
+  ERROR    private-key           examples/messy/scripts/seed-market.mjs:5
+           a value of 64 hexadecimal digits that looks like a private key is given to SEEDER_KEY in the code; the value is not shown
+           fix: take the key out of the repository and out of its history, treat it as known to everyone and move what it holds to a new key; sign on a server or in the wallet of the user, never with a key shipped in a front end
+           rule: a value of 64 hexadecimal digits that its name says is a private key
+           basis: a recovery phrase or a private key is never to be shared for any reason, and never kept in digital form such as a screenshot (Ethereum security and scam prevention (ethereum.org), https://ethereum.org/security/)
+           basis: secrets hard coded in source and configuration files are a common leak; .env files are not to be committed, and client-side code is not to hold secrets at all (Secrets Management Cheat Sheet (OWASP), https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)
+           basis: a secret that leaked is revoked and rotated, and removed from the code, the logs and the history (Secrets Management Cheat Sheet (OWASP), https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)
+           basis: an env file holds KEY=value lines, # starts a comment unless the value is quoted, and the file is not to be committed (dotenv (the README of the package), https://github.com/motdotla/dotenv)
+           the tool's own choice: a value of 64 hexadecimal digits, with or without 0x, in a string, a fixed part of a template, a JSON string or an env value, where the name it is given to, its key, the call it is passed to or the object it sits in has a word of KEY_WORDS, or the word key and no word of NOT_KEY_WORDS (a hash, a topic, a slot or a role is a value of the same shape); a value whose digits are all the same is a placeholder; the value is never shown
+
+  ERROR    eth-sign              examples/messy/src/wallet/sign.ts:19
+           the code asks the wallet for eth_sign, which in MetaMask signed any hash with no prefix, a transaction included, so a user could not see what was signed; MetaMask has removed the method
+           fix: sign typed data with eth_signTypedData_v4 (EIP-712), or text the user can read with personal_sign
+           rule: a request of eth_sign, or a call of x.eth.sign
+           basis: eth_sign lets a site have a user blindly sign any hash, a transaction included, so MetaMask removes the method and answers it with an error (MIP-3: Remove eth_sign (MetaMask Improvement Proposals), https://github.com/MetaMask/metamask-improvement-proposals/blob/main/MIPs/mip-3.md)
+           basis: eth_signTypedData_v4 gives the most readable signatures that are efficient to check on chain, personal_sign suits text such as Sign-In with Ethereum, and eth_sign is deprecated (Sign data (MetaMask documentation), https://docs.metamask.io/metamask-connect/evm/guides/sign-data/)
+           basis: eth_sign signs with the prefix of an Ethereum signed message, eth_chainId returns the chain id used for replay protection, and eth_accounts returns the addresses of the client (JSON-RPC API (ethereum.org), https://ethereum.org/developers/docs/apis/json-rpc/)
+           the tool's own choice: the string eth_sign as a whole value, as the method of a request, and a call of web3.eth.sign or of any x.eth.sign
+
+  WARNING  html-from-chain       examples/messy/src/components/NftCard.tsx:11
+           dangerouslySetInnerHTML is given HTML built from metadata, a value that comes from token metadata or the chain, with no sanitizer in sight
+           fix: show text with textContent or as a JSX child, or clean the HTML with a sanitizer such as DOMPurify right before it is set
+           rule: an HTML sink fed from a name of token metadata or of the chain, with no sanitizer
+           basis: innerHTML, outerHTML and document.write treat their value as HTML, so a variable is not to be put there, and HTML that must be shown is cleaned first, such as with DOMPurify (Cross Site Scripting Prevention Cheat Sheet (OWASP), https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
+           basis: dangerouslySetInnerHTML takes raw HTML in __html, and HTML that does not come from a fully trusted source opens the page to cross-site scripting (Common components, dangerouslySetInnerHTML (React documentation), https://react.dev/reference/react-dom/components/common)
+           basis: the tokenURI of a token points to metadata JSON with a name, a description and an image that the contract decides, and the URI may change over time (ERC-721: Non-Fungible Token Standard (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-721)
+           the tool's own choice: dangerouslySetInnerHTML with __html, x.innerHTML or x.outerHTML set with = or +=, insertAdjacentHTML and document.write, whose value holds a name with a word of CHAIN_DATA_WORDS (metadata, uri, nft, ens, token, description and the others of docs/method.md) and no call with a word of SANITIZE_WORDS; a heuristic on names: a value from the chain held in a name with other words is not seen
+
+  WARNING  address-conflict      examples/messy/src/config/staging/contracts.json:3
+           MarketRouter on chain 1 is 0x4Aec56CbB6cc1C1849b27F883b97B2A9e8969e99 here and 0x24f8097B1994432e896001062ff6be5E53a6F170 at examples/messy/src/config/contracts.json:3; one of the two configurations sends users to the wrong contract
+           fix: keep one map of addresses by chain id, or name the files so that each is used for one deployment only, and check which of the two addresses is the deployed one
+           rule: a contract name with two addresses for one chain id in two JSON files
+           basis: the chain id is part of what a transaction signs, so that a transaction for one chain cannot be replayed on another (EIP-155: Simple replay attack protection (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-155)
+           the tool's own choice: two JSON files that map the same contract name (the key that holds the address, or the name next to an address key) to two addresses for the same chain (a key that is a number, or a chainId next to it); the first file in the order of the paths is the reference, and maps by chain name rather than chain id are not read; two settings for staging and production can differ on purpose, which a person has to judge
+
+  WARNING  address-checksum      examples/messy/src/lib/addresses.ts:2
+           the address 0xa30A33DbBa2306021D3143805837911EE55e092C mixes upper and lower case but does not match the EIP-55 checksum, which is 0xa30A33dbBa2306021D3143805837911EE55e092C; a typo in one digit would read the same
+           fix: check the address against its source, a digit may be wrong; then write it with its EIP-55 checksum, as getAddress of ethers or viem gives it
+           rule: a mixed-case address whose case does not match EIP-55
+           basis: an address is checksummed by hashing its 40 lowercase digits with Keccak-256 and writing each letter in upper case where the digit of the hash at its place is 8 or more; all lower and all upper case stay valid with no checksum (ERC-55: Mixed-case checksum address encoding (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-55)
+           the tool's own choice: an address of 40 hexadecimal digits after 0x, in a string, a JSON file or an env file, with upper and lower case letters that do not match the checksum of EIP-55, worked out with the Keccak-256 of the tool itself; an address all in lower or all in upper case has no checksum and is not reported; the report names the address with its right checksum
+
+  WARNING  rpc-url-key           examples/messy/src/lib/rpc.ts:4
+           an RPC address on eth-mainnet.rpcnode.test holds what looks like an API key in its path, written in the code that is shipped to the browser; the key is not shown
+           fix: read the address from the environment at build time and keep the key out of the repository; for a front end, use a key restricted to your domains and methods, or send the calls through a server of your own, and rotate the key that was committed
+           rule: an RPC address with what looks like an API key in its path, query or user part
+           basis: secrets hard coded in source and configuration files are a common leak; .env files are not to be committed, and client-side code is not to hold secrets at all (Secrets Management Cheat Sheet (OWASP), https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)
+           basis: a secret that leaked is revoked and rotated, and removed from the code, the logs and the history (Secrets Management Cheat Sheet (OWASP), https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)
+           the tool's own choice: an http, https, ws or wss address with a path part of 20 or more letters, digits, - and _ that holds letters and digits, a query parameter of KEY_PARAMS with a value of 8 or more characters, or a password before the host, where the host or the path has a word of RPC_HOST_WORDS or the name around it a word of RPC_WORDS; a key that comes from ${...} is not seen; only the host is shown
+
+  WARNING  unlimited-approval    examples/messy/src/trade/approve.ts:13
+           approve gives the spender an allowance of the largest uint256, so the spender can move every token of the user, now and later
+           fix: approve only the amount the next transaction needs, or let the user choose the amount and show it before the wallet opens
+           rule: an approval or a permit whose amount is the largest uint256
+           basis: an unlimited spending limit lets a contract take every token of the kind from the wallet, so approvals are to be limited to what the transaction needs (Ethereum security and scam prevention (ethereum.org), https://ethereum.org/security/)
+           basis: approve lets the spender withdraw from the account again and again, up to the value given (ERC-20: Token Standard (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-20)
+           basis: a permit is a signed message with owner, spender, value, nonce and deadline that sets an allowance like approve does, bound to the token by its domain (ERC-2612: Permit Extension for EIP-20 Signed Approvals (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-2612)
+           basis: MaxUint256 is the constant for the largest value of a uint256 (Constants (ethers v6 documentation), https://docs.ethers.org/v6/api/constants/)
+           the tool's own choice: x.approve(spender, amount) or x.increaseAllowance(spender, amount), approve named by functionName with args of viem or wagmi or by encodeFunctionData of ethers, and a value or amount of the typed data of a permit, where the amount is a name of UNLIMITED_NAMES at the end of a member chain, 2**256 - 1, (1 << 256) - 1, the same in BigInt, 64 f digits or the decimal number, or a name declared in the file as one of these
+
+  WARNING  legacy-wallet-api     examples/messy/src/wallet/connect.ts:3
+           window.web3 is the old injected web3 object; wallets inject an EIP-1193 provider as window.ethereum instead, and window.web3 is no longer there
+           fix: use the EIP-1193 provider: ask for accounts with eth_requestAccounts when the user acts, and read them with eth_accounts after that
+           rule: window.web3, ethereum.enable(), or eth_accounts with no request for accounts in the project
+           basis: a dapp asks for accounts with the eth_requestAccounts method, which may show the user a prompt, and ethereum.enable() is deprecated in its favour (EIP-1102: Opt-in account exposure (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-1102)
+           basis: the previous generation of browsers injected a provider with accounts and no consent of the user, which let any site see the accounts and start transactions (EIP-1102: Opt-in account exposure (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-1102)
+           basis: the legacy provider API, with send and sendAsync, is kept in an appendix only for old applications, and its authors advise against implementing it (EIP-1193: Ethereum Provider JavaScript API (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-1193)
+           basis: eth_accounts returns only the addresses the user has already allowed, and eth_requestAccounts is the advised way to get that permission (eth_accounts (MetaMask documentation), https://docs.metamask.io/metamask-connect/evm/reference/json-rpc-api/eth_accounts/)
+           basis: eth_requestAccounts asks the user for access to addresses and returns the addresses the user allowed (eth_requestAccounts (MetaMask documentation), https://docs.metamask.io/metamask-connect/evm/reference/json-rpc-api/eth_requestAccounts/)
+           the tool's own choice: window.web3, the old injected object; ethereum.enable() (or window.ethereum.enable()); and the string eth_accounts in a project where nothing asks for accounts (no eth_requestAccounts, wallet_requestPermissions, requestAddresses, getSigner, useConnect or connect with a connector); web3.js as a library is not reported
+
+  WARNING  legacy-wallet-api     examples/messy/src/wallet/connect.ts:7
+           ethereum.enable() is the deprecated way to ask for accounts; EIP-1102 replaces it with the eth_requestAccounts method
+           fix: use the EIP-1193 provider: ask for accounts with eth_requestAccounts when the user acts, and read them with eth_accounts after that
+           rule: window.web3, ethereum.enable(), or eth_accounts with no request for accounts in the project
+           basis: a dapp asks for accounts with the eth_requestAccounts method, which may show the user a prompt, and ethereum.enable() is deprecated in its favour (EIP-1102: Opt-in account exposure (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-1102)
+           basis: the previous generation of browsers injected a provider with accounts and no consent of the user, which let any site see the accounts and start transactions (EIP-1102: Opt-in account exposure (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-1102)
+           basis: the legacy provider API, with send and sendAsync, is kept in an appendix only for old applications, and its authors advise against implementing it (EIP-1193: Ethereum Provider JavaScript API (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-1193)
+           basis: eth_accounts returns only the addresses the user has already allowed, and eth_requestAccounts is the advised way to get that permission (eth_accounts (MetaMask documentation), https://docs.metamask.io/metamask-connect/evm/reference/json-rpc-api/eth_accounts/)
+           basis: eth_requestAccounts asks the user for access to addresses and returns the addresses the user allowed (eth_requestAccounts (MetaMask documentation), https://docs.metamask.io/metamask-connect/evm/reference/json-rpc-api/eth_requestAccounts/)
+           the tool's own choice: window.web3, the old injected object; ethereum.enable() (or window.ethereum.enable()); and the string eth_accounts in a project where nothing asks for accounts (no eth_requestAccounts, wallet_requestPermissions, requestAddresses, getSigner, useConnect or connect with a connector); web3.js as a library is not reported
+
+  WARNING  typed-data-domain     examples/messy/src/wallet/sign.ts:9
+           the domain given to signer.signTypedData has no chainId and no verifyingContract, so the signature can be replayed on another chain
+           fix: put chainId and verifyingContract into the domain, the chain id of the chain the contract is on and the address of the contract that checks the signature
+           rule: a typed data domain literal with no chainId or no verifyingContract
+           basis: the domain of typed data names the signing domain with name, version, chainId, verifyingContract and salt; a wallet should refuse to sign when chainId does not match the active chain, and verifyingContract names the contract that checks the signature (EIP-712: Typed structured data hashing and signing (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-712)
+           basis: the standard itself has no replay protection, so the application has to bind the signature to its chain and contract and refuse a message it has seen (EIP-712: Typed structured data hashing and signing (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-712)
+           basis: the chain id is part of what a transaction signs, so that a transaction for one chain cannot be replayed on another (EIP-155: Simple replay attack protection (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-155)
+           basis: signTypedData of viem takes the domain, the types, the primary type and the message of an EIP-712 signature in one object (signTypedData (viem documentation), https://viem.sh/docs/actions/wallet/signTypedData)
+           the tool's own choice: signTypedData, _signTypedData or signTypedDataAsync called with a domain object literal (the first argument, or the domain key of an object argument, or a name declared in the file as one) that has no chainId or no verifyingContract key, or with an object that has types, primaryType or message and no domain; an eth_signTypedData request whose domain key holds such a literal; a domain built elsewhere or with a spread is not read
+
+  WARNING  unstructured-signing  examples/messy/src/wallet/sign.ts:14
+           personal_sign signs a message built from fields (JSON.stringify, a template with several values, or text joined to values); the wallet shows it as plain text that the user cannot check
+           fix: sign the fields as EIP-712 typed data with eth_signTypedData_v4, so the wallet shows each field and the contract can check them; keep personal_sign for text such as a sign-in message
+           rule: personal_sign or signMessage of a message built from fields
+           basis: typed data lets a wallet show the fields of a message to the user, where a signature of an opaque string of bytes shows nothing the user can check (EIP-712: Typed structured data hashing and signing (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-712)
+           basis: eth_signTypedData_v4 gives the most readable signatures that are efficient to check on chain, personal_sign suits text such as Sign-In with Ethereum, and eth_sign is deprecated (Sign data (MetaMask documentation), https://docs.metamask.io/metamask-connect/evm/guides/sign-data/)
+           the tool's own choice: personal_sign, signMessage or signMessageAsync, or x.personal.sign, whose message (the first parameter, the first argument or the message key) holds a call of JSON.stringify, a template with two or more ${...}, or text joined with + more than once; a Sign-In with Ethereum message, by its fixed text or a SiweMessage, is left out, and a message held in a name declared elsewhere is not followed
+
+  INFO     address-repeated      examples/messy/src/lib/addresses.ts:2
+           the address 0xa30A33DbBa2306021D3143805837911EE55e092C is written here and is also in examples/messy/src/config/contracts.json and 1 more; read it from that map, so a change of address is made once
+           fix: keep the addresses in one map by chain and name, in a JSON file or one module, and read them from there
+           rule: an address in several files of code, or in the code and a configuration map
+           basis: the chain id is part of what a transaction signs, so that a transaction for one chain cannot be replayed on another (EIP-155: Simple replay attack protection (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-155)
+           the tool's own choice: an address written in the code that is also in a JSON or env file of the project, or written in two files of code or more; the first file of code in the order of the paths is taken as the home of the address and the others are reported; the zero address and other addresses of one repeated digit are left out
+
+  INFO     address-repeated      examples/messy/src/trade/approve.ts:3
+           the address 0x24f8097B1994432e896001062ff6be5E53a6F170 is written here and is also in examples/messy/.env.example and 1 more; read it from that map, so a change of address is made once
+           fix: keep the addresses in one map by chain and name, in a JSON file or one module, and read them from there
+           rule: an address in several files of code, or in the code and a configuration map
+           basis: the chain id is part of what a transaction signs, so that a transaction for one chain cannot be replayed on another (EIP-155: Simple replay attack protection (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-155)
+           the tool's own choice: an address written in the code that is also in a JSON or env file of the project, or written in two files of code or more; the first file of code in the order of the paths is taken as the home of the address and the others are reported; the zero address and other addresses of one repeated digit are left out
+
+  INFO     low-confirmations     examples/messy/src/trade/approve.ts:28
+           tx.wait waits for 1 confirmation in a file that moves value, while confirmations at examples/messy/src/config/networks.json:3 asks for 3
+           fix: pass the number of confirmations of the setting to the wait, so the app shows a transfer as done only when the setting says it is safe
+           rule: a wait for 0 or 1 confirmation in a file that moves value, against a setting of 2 or more
+           basis: wait and waitForTransaction take a number of confirmations, one by default, and with zero they may return before the transaction is mined (Providers (ethers v6 documentation), https://docs.ethers.org/v6/api/providers/)
+           basis: waitForTransactionReceipt takes the number of confirmations to wait for, one by default (waitForTransactionReceipt (viem documentation), https://viem.sh/docs/actions/public/waitForTransactionReceipt)
+           basis: a block is final only after about two epochs, when two checkpoints are justified in a row; until then a short reorganization of the chain can still drop it (Proof-of-stake (ethereum.org), https://ethereum.org/developers/docs/consensus-mechanisms/pos/)
+           the tool's own choice: tx.wait(), tx.wait(0) or tx.wait(1), waitForTransaction and waitForTransactionReceipt with no confirmations or 0 or 1 (the libraries wait for one by default), in a file that moves value (approve, transfer, parseEther, sendTransaction, writeContract or a value key), in a project where a JSON key, an env name or a constant named confirmations sets 2 or more; a number held in a name is not read
+
+  INFO     chain-not-checked     examples/messy/src/wallet/connect.ts:7
+           this file asks the wallet for accounts or sends a transaction, and nothing in it reads the chain id, listens for chainChanged or switches the network, so a transaction can go to the chain the wallet happens to be on
+           fix: read the chain id before a transaction, ask the wallet to switch when it differs (wallet_switchEthereumChain or switchChain), and listen for chainChanged; or pass the chain to the library call so that it checks it
+           rule: a file that connects a wallet or sends a transaction with no chain id, chainChanged or network switch in it
+           basis: a provider emits chainChanged with the new chain id when the chain it is connected to changes, and the request method is the way to call the provider (EIP-1193: Ethereum Provider JavaScript API (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-1193)
+           basis: the provider of MetaMask follows EIP-1193 and emits chainChanged with a hexadecimal chain id, which an application listens to for the network of the user (Ethereum provider API (MetaMask documentation), https://docs.metamask.io/metamask-connect/evm/reference/provider-api/)
+           basis: an application reads the current chain, listens for chainChanged and asks the wallet to switch networks, and handles a user who rejects the switch (Manage networks (MetaMask documentation), https://docs.metamask.io/metamask-connect/evm/guides/manage-networks/)
+           basis: the chain id is part of what a transaction signs, so that a transaction for one chain cannot be replayed on another (EIP-155: Simple replay attack protection (Ethereum Improvement Proposals), https://eips.ethereum.org/EIPS/eip-155)
+           the tool's own choice: a file that asks for accounts (eth_requestAccounts, requestAddresses, ethereum.enable(), connect with a connector) or sends a transaction (eth_sendTransaction, sendTransaction, writeContract), with no name or string of CHAIN_WORDS anywhere in it; the first such place is reported; a check in another file, or in a library that checks the chain for you, is not seen, so this is a note
+
+note: 2 paths matching **/dist/**, **/build/**, **/.next/**, **/out/**, **/coverage/** and 5 more are left out
+note: 1 folder named .git or node_modules is passed over
+
+This check reads the source, JSON and env files on disk as text and runs nothing, calls no node and fetches nothing; the checks are a heuristic, and no secret value is shown. A finding is a lead with a file and a line for a review of how the app talks to wallets and chains, and a clean result is not a security audit and not a guarantee that the app is safe (docs/limits.md).
+
+RESULT: FAIL - 4 findings at or above error (4 error, 9 warning, 4 info)

@@ -1,0 +1,124 @@
+dapp-frontend-check: examples/messy
+input: 12 files read (7 code, 4 JSON, 1 env); 1 other file passed over; 1 folder named .git or node_modules passed over; 2 paths excluded; 0 links not followed
+config: examples/config.json (Quillmere Market front end review): include **/*.js, **/*.jsx, **/*.mjs, **/*.cjs, **/*.ts, **/*.tsx, **/*.mts, **/*.cts, **/*.json, **/.env and **/.env.*; exclude **/dist/**, **/build/**, **/.next/**, **/out/**, **/coverage/**, **/artifacts/**, **/cache/**, **/package-lock.json, **/npm-shrinkwrap.json and **/mocks/**; minimum severity info; fail on error
+rules: private-key (error); seed-phrase (error); rpc-url-key (warning); unlimited-approval (warning); eth-sign (error); unstructured-signing (warning); typed-data-domain (warning); chain-not-checked (info); address-checksum (warning); address-repeated (info); address-conflict (warning); legacy-wallet-api (warning); html-from-chain (warning); low-confirmations (info); unreadable-file (error); scan-limit (error)
+findings: 17 (4 error, 9 warning, 4 info)
+
+Files (12)
+
+  file                                              kind  addresses  error  warning  info
+  examples/messy/.env.example                       env   1          2      0        0
+  examples/messy/package.json                       json  0          0      0        0
+  examples/messy/scripts/seed-market.mjs            code  0          1      0        0
+  examples/messy/src/components/NftCard.tsx         code  0          0      1        0
+  examples/messy/src/config/contracts.json          json  3          0      0        0
+  examples/messy/src/config/networks.json           json  0          0      0        0
+  examples/messy/src/config/staging/contracts.json  json  2          0      1        0
+  examples/messy/src/lib/addresses.ts               code  2          0      1        1
+  examples/messy/src/lib/rpc.ts                     code  0          0      1        0
+  examples/messy/src/trade/approve.ts               code  1          0      1        2
+  examples/messy/src/wallet/connect.ts              code  0          0      2        1
+  examples/messy/src/wallet/sign.ts                 code  0          1      2        0
+
+Summary
+
+  files: 12 read, 7 JavaScript or TypeScript, 4 JSON and 1 env
+  addresses: 9 written, 5 distinct
+  wallet calls: 3 signature requests, 0 transaction sends, 2 approvals
+
+Rules (16)
+
+  rule                  level    findings
+  private-key           error    2
+  seed-phrase           error    1
+  rpc-url-key           warning  1
+  unlimited-approval    warning  1
+  eth-sign              error    1
+  unstructured-signing  warning  1
+  typed-data-domain     warning  1
+  chain-not-checked     info     1
+  address-checksum      warning  1
+  address-repeated      info     2
+  address-conflict      warning  1
+  legacy-wallet-api     warning  2
+  html-from-chain       warning  1
+  low-confirmations     info     1
+  unreadable-file       error    0
+  scan-limit            error    0
+
+Findings (17)
+
+  ERROR    seed-phrase           examples/messy/.env.example:5
+           DEPLOYER_MNEMONIC holds 12 words of the BIP-39 English list in a row in an env file of the repository, though they do not pass the BIP-39 checksum; the words are not shown
+           fix: take the phrase out of the repository and out of its history, treat every account of it as known to everyone and move what they hold; a test that needs a phrase builds it at run time
+
+  ERROR    private-key           examples/messy/.env.example:7
+           RELAYER_PRIVATE_KEY holds a value of 64 hexadecimal digits that looks like a private key in an env file of the repository; the value is not shown
+           fix: take the key out of the repository and out of its history, treat it as known to everyone and move what it holds to a new key; sign on a server or in the wallet of the user, never with a key shipped in a front end
+
+  ERROR    private-key           examples/messy/scripts/seed-market.mjs:5
+           a value of 64 hexadecimal digits that looks like a private key is given to SEEDER_KEY in the code; the value is not shown
+           fix: take the key out of the repository and out of its history, treat it as known to everyone and move what it holds to a new key; sign on a server or in the wallet of the user, never with a key shipped in a front end
+
+  ERROR    eth-sign              examples/messy/src/wallet/sign.ts:19
+           the code asks the wallet for eth_sign, which in MetaMask signed any hash with no prefix, a transaction included, so a user could not see what was signed; MetaMask has removed the method
+           fix: sign typed data with eth_signTypedData_v4 (EIP-712), or text the user can read with personal_sign
+
+  WARNING  html-from-chain       examples/messy/src/components/NftCard.tsx:11
+           dangerouslySetInnerHTML is given HTML built from metadata, a value that comes from token metadata or the chain, with no sanitizer in sight
+           fix: show text with textContent or as a JSX child, or clean the HTML with a sanitizer such as DOMPurify right before it is set
+
+  WARNING  address-conflict      examples/messy/src/config/staging/contracts.json:3
+           MarketRouter on chain 1 is 0x4Aec56CbB6cc1C1849b27F883b97B2A9e8969e99 here and 0x24f8097B1994432e896001062ff6be5E53a6F170 at examples/messy/src/config/contracts.json:3; one of the two configurations sends users to the wrong contract
+           fix: keep one map of addresses by chain id, or name the files so that each is used for one deployment only, and check which of the two addresses is the deployed one
+
+  WARNING  address-checksum      examples/messy/src/lib/addresses.ts:2
+           the address 0xa30A33DbBa2306021D3143805837911EE55e092C mixes upper and lower case but does not match the EIP-55 checksum, which is 0xa30A33dbBa2306021D3143805837911EE55e092C; a typo in one digit would read the same
+           fix: check the address against its source, a digit may be wrong; then write it with its EIP-55 checksum, as getAddress of ethers or viem gives it
+
+  WARNING  rpc-url-key           examples/messy/src/lib/rpc.ts:4
+           an RPC address on eth-mainnet.rpcnode.test holds what looks like an API key in its path, written in the code that is shipped to the browser; the key is not shown
+           fix: read the address from the environment at build time and keep the key out of the repository; for a front end, use a key restricted to your domains and methods, or send the calls through a server of your own, and rotate the key that was committed
+
+  WARNING  unlimited-approval    examples/messy/src/trade/approve.ts:13
+           approve gives the spender an allowance of the largest uint256, so the spender can move every token of the user, now and later
+           fix: approve only the amount the next transaction needs, or let the user choose the amount and show it before the wallet opens
+
+  WARNING  legacy-wallet-api     examples/messy/src/wallet/connect.ts:3
+           window.web3 is the old injected web3 object; wallets inject an EIP-1193 provider as window.ethereum instead, and window.web3 is no longer there
+           fix: use the EIP-1193 provider: ask for accounts with eth_requestAccounts when the user acts, and read them with eth_accounts after that
+
+  WARNING  legacy-wallet-api     examples/messy/src/wallet/connect.ts:7
+           ethereum.enable() is the deprecated way to ask for accounts; EIP-1102 replaces it with the eth_requestAccounts method
+           fix: use the EIP-1193 provider: ask for accounts with eth_requestAccounts when the user acts, and read them with eth_accounts after that
+
+  WARNING  typed-data-domain     examples/messy/src/wallet/sign.ts:9
+           the domain given to signer.signTypedData has no chainId and no verifyingContract, so the signature can be replayed on another chain
+           fix: put chainId and verifyingContract into the domain, the chain id of the chain the contract is on and the address of the contract that checks the signature
+
+  WARNING  unstructured-signing  examples/messy/src/wallet/sign.ts:14
+           personal_sign signs a message built from fields (JSON.stringify, a template with several values, or text joined to values); the wallet shows it as plain text that the user cannot check
+           fix: sign the fields as EIP-712 typed data with eth_signTypedData_v4, so the wallet shows each field and the contract can check them; keep personal_sign for text such as a sign-in message
+
+  INFO     address-repeated      examples/messy/src/lib/addresses.ts:2
+           the address 0xa30A33DbBa2306021D3143805837911EE55e092C is written here and is also in examples/messy/src/config/contracts.json and 1 more; read it from that map, so a change of address is made once
+           fix: keep the addresses in one map by chain and name, in a JSON file or one module, and read them from there
+
+  INFO     address-repeated      examples/messy/src/trade/approve.ts:3
+           the address 0x24f8097B1994432e896001062ff6be5E53a6F170 is written here and is also in examples/messy/.env.example and 1 more; read it from that map, so a change of address is made once
+           fix: keep the addresses in one map by chain and name, in a JSON file or one module, and read them from there
+
+  INFO     low-confirmations     examples/messy/src/trade/approve.ts:28
+           tx.wait waits for 1 confirmation in a file that moves value, while confirmations at examples/messy/src/config/networks.json:3 asks for 3
+           fix: pass the number of confirmations of the setting to the wait, so the app shows a transfer as done only when the setting says it is safe
+
+  INFO     chain-not-checked     examples/messy/src/wallet/connect.ts:7
+           this file asks the wallet for accounts or sends a transaction, and nothing in it reads the chain id, listens for chainChanged or switches the network, so a transaction can go to the chain the wallet happens to be on
+           fix: read the chain id before a transaction, ask the wallet to switch when it differs (wallet_switchEthereumChain or switchChain), and listen for chainChanged; or pass the chain to the library call so that it checks it
+
+note: 2 paths matching **/dist/**, **/build/**, **/.next/**, **/out/**, **/coverage/** and 5 more are left out
+note: 1 folder named .git or node_modules is passed over
+
+This check reads the source, JSON and env files on disk as text and runs nothing, calls no node and fetches nothing; the checks are a heuristic, and no secret value is shown. A finding is a lead with a file and a line for a review of how the app talks to wallets and chains, and a clean result is not a security audit and not a guarantee that the app is safe (docs/limits.md).
+
+RESULT: FAIL - 4 findings at or above error (4 error, 9 warning, 4 info)

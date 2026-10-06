@@ -1,0 +1,11 @@
+{
+  "name": "quillmere-market",
+  "private": true,
+  "version": "0.4.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "seed": "node scripts/seed-market.mjs"
+  }
+}

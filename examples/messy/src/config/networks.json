@@ -1,0 +1,8 @@
+{
+  // Read by the build; comments are allowed here.
+  "confirmations": 3,
+  "networks": [
+    { "chainId": 1, "name": "Ethereum", "rpcUrl": "https://rpc.chainhost.test/mainnet" },
+    { "chainId": 11155111, "name": "Sepolia", "rpcUrl": "https://rpc.chainhost.test/sepolia" },
+  ]
+}

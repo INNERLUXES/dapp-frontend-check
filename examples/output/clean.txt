@@ -1,0 +1,50 @@
+dapp-frontend-check: examples/clean
+input: 7 files read (3 code, 3 JSON, 1 env); 1 other file passed over; 0 folders named .git or node_modules passed over; 0 paths excluded; 0 links not followed
+config: built-in defaults: include **/*.js, **/*.jsx, **/*.mjs, **/*.cjs, **/*.ts, **/*.tsx, **/*.mts, **/*.cts, **/*.json, **/.env and **/.env.*; exclude **/dist/**, **/build/**, **/.next/**, **/out/**, **/coverage/**, **/artifacts/**, **/cache/**, **/package-lock.json and **/npm-shrinkwrap.json; minimum severity info; fail on error
+rules: private-key (error); seed-phrase (error); rpc-url-key (warning); unlimited-approval (warning); eth-sign (error); unstructured-signing (info); typed-data-domain (warning); chain-not-checked (info); address-checksum (warning); address-repeated (info); address-conflict (warning); legacy-wallet-api (warning); html-from-chain (warning); low-confirmations (info); unreadable-file (error); scan-limit (error)
+findings: 0
+
+Files (7)
+
+  file                                          kind  addresses  error  warning  info
+  examples/clean/.env.example                   env   0          0      0        0
+  examples/clean/package.json                   json  0          0      0        0
+  examples/clean/src/booth.ts                   code  0          0      0        0
+  examples/clean/src/components/TicketCard.tsx  code  0          0      0        0
+  examples/clean/src/config/contracts.json      json  2          0      0        0
+  examples/clean/src/config/network.json        json  0          0      0        0
+  examples/clean/src/wallet.ts                  code  0          0      0        0
+
+Summary
+
+  files: 7 read, 3 JavaScript or TypeScript, 3 JSON and 1 env
+  addresses: 2 written, 2 distinct
+  wallet calls: 2 signature requests, 2 transaction sends, 1 approval
+
+Rules (16)
+
+  rule                  level    findings
+  private-key           error    0
+  seed-phrase           error    0
+  rpc-url-key           warning  0
+  unlimited-approval    warning  0
+  eth-sign              error    0
+  unstructured-signing  info     0
+  typed-data-domain     warning  0
+  chain-not-checked     info     0
+  address-checksum      warning  0
+  address-repeated      info     0
+  address-conflict      warning  0
+  legacy-wallet-api     warning  0
+  html-from-chain       warning  0
+  low-confirmations     info     0
+  unreadable-file       error    0
+  scan-limit            error    0
+
+Findings (0)
+
+  none
+
+This check reads the source, JSON and env files on disk as text and runs nothing, calls no node and fetches nothing; the checks are a heuristic, and no secret value is shown. A finding is a lead with a file and a line for a review of how the app talks to wallets and chains, and a clean result is not a security audit and not a guarantee that the app is safe (docs/limits.md).
+
+RESULT: PASS - no finding at or above error

@@ -1,0 +1,5 @@
+{
+  "name": "Quillmere Market front end review",
+  "exclude": ["**/dist/**", "**/build/**", "**/.next/**", "**/out/**", "**/coverage/**", "**/artifacts/**", "**/cache/**", "**/package-lock.json", "**/npm-shrinkwrap.json", "**/mocks/**"],
+  "rules": { "unstructuredSigning": "warning" }
+}
